@@ -1,3 +1,7 @@
+<img src="https://img.shields.io/badge/swift-5.8.1-orange.svg?style=flat" alt="Swift 5.8.1 Compatible">
+</a>
+
+
 # Swift-donuts 🍩
 This is a Swift Repository of [Donut math](https://www.a1k0n.net/2011/07/20/donut-math.html) created by Andy Sloane in 2006.
 
