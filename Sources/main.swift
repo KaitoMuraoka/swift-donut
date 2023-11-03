@@ -1,51 +1,63 @@
 import Foundation
 
-let screen_width = Int(80 * 0.75) // 適切な値に変更してください
-let screen_height = Int(24 * 0.75) // 適切な値に変更してください
-let theta_spacing = 0.07
-let phi_spacing = 0.02
-let R1 = 0.5
-let R2 = 1.0
-let K2 = 50.0
-let K1 = Double(screen_width) * K2 * 1.5 / (8 * (R1 + R2))
+let screenWidth = Int(80 * 0.75) // 適切な値に変更してください
+let screenHight = Int(24 * 0.75) // 適切な値に変更してください
+let thetaSpacing = 0.07
+let phiSpacing = 0.02
+let donutRadius = 0.5
+let donutThickness = 1.0
+let distanceToDonuts = 50.0
+let observerToScreen = Double(screenWidth) * distanceToDonuts * 1.5 / (8 * (donutRadius + donutThickness))
 
-func render_frame(A: Double, B: Double) {
-    var output = Array(repeating: Array(repeating: " ", count: screen_width), count: screen_height)
-    var zbuffer = Array(repeating: Array(repeating: 0.0, count: screen_width), count: screen_height)
+func renderFrame(_ A: Double, _ B: Double) {
+    var output = Array(repeating: Array(repeating: " ", count: screenWidth), count: screenHight)
+    var zbuffer = Array(repeating: Array(repeating: 0.0, count: screenWidth), count: screenHight)
     
+    // precompute sines and cosines of A and B
     let cosA = cos(A)
     let sinA = sin(A)
     let cosB = cos(B)
     let sinB = sin(B)
     
-    for theta in stride(from: 0, to: 2 * Double.pi, by: theta_spacing) {
+    // theta goes around the cross-sectional circle of a torus
+    for theta in stride(from: 0, to: 2 * Double.pi, by: thetaSpacing) {
+        // precompute sines and cosines of theta
         let costheta = cos(theta)
         let sintheta = sin(theta)
         
-        for phi in stride(from: 0, to: 2 * Double.pi, by: phi_spacing) {
+        // phi goes around the center of revolution of a torus
+        for phi in stride(from: 0, to: 2 * Double.pi, by: phiSpacing) {
+            // precompute sines and cosines of phi
             let cosphi = cos(phi)
             let sinphi = sin(phi)
             
-            let circlex = R2 + R1 * costheta
-            let circley = R1 * sintheta
+            // the x,y coordinate of the circle, before revolving (factored
+            // out of the above equations)
+            let circlex = donutThickness + donutRadius * costheta
+            let circley = donutRadius * sintheta
             
+            // final 3D (x,y,z) coordinate after rotations, directly from
             let x = circlex * (cosB * cosphi + sinA * sinB * sinphi) - circley * cosA * sinB
             let y = circlex * (sinB * cosphi - sinA * cosB * sinphi) + circley * cosA * cosB
-            let z = K2 + cosA * circlex * sinphi + circley * sinA
+            let z = distanceToDonuts + cosA * circlex * sinphi + circley * sinA
             let ooz = 1 / z
             
-            let xOffset = screen_width / 2
-            let yOffset = screen_height / 2
+            let xOffset = screenWidth / 2
+            let yOffset = screenHight / 2
             
-            let xProjection = K1 * ooz * x
-            let yProjection = K1 * ooz * y
+            let xProjection = observerToScreen * ooz * x
+            let yProjection = observerToScreen * ooz * y
             
+            // x and y projection.  note that y is negated here, because y goes up in 3D space but down on 2D displays.
             let xp = xOffset + Int(xProjection)
             let yp = yOffset - Int(yProjection)
             
+            /**
+             Change the letters according to the brightness of the object to create a threedimensional effect.
+             */
             let L = cosphi * costheta * sinB - cosA * costheta * sinphi - sinA * sintheta + cosB * (cosA * sintheta - costheta * sinA * sinphi)
             if L > 0 {
-                if xp >= 0 && xp < screen_width && yp >= 0 && yp < screen_height {
+                if xp >= 0 && xp < screenWidth && yp >= 0 && yp < screenHight {
                     if ooz > zbuffer[yp][xp] {
                         zbuffer[yp][xp] = ooz
                         let luminance_chars = ".,-~:;=!*#$@"
@@ -67,11 +79,11 @@ func render_frame(A: Double, B: Double) {
 }
 
 while true {
-    for _ in 0..<screen_height {
+    for _ in 0..<screenHight {
         print()
     }
     let A = Double(Date().timeIntervalSince1970) * 0.3
     let B = Double(Date().timeIntervalSince1970) * 0.2
-    render_frame(A: A, B: B)
+    renderFrame(A, B)
     usleep(30000)
 }
