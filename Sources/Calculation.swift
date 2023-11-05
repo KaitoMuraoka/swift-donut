@@ -8,7 +8,7 @@
 import Foundation
 
 struct Calculation {
-    func renderFrame(_ A: Double, _ B: Double) {
+    func renderFrame(_ A: Double, _ B: Double) -> [[String]] {
         var output = Array(repeating: Array(repeating: " ", count: screenWidth), count: screenHight)
         var zbuffer = Array(repeating: Array(repeating: 0.0, count: screenWidth), count: screenHight)
         
@@ -67,7 +67,10 @@ struct Calculation {
                 }
             }
         }
-        
+        return output
+    }
+    
+    func printFrame(_ output: [[String]]) {
         print("\u{001B}[H")
         for row in output {
             for char in row {
