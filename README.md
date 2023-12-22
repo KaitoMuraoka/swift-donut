@@ -26,3 +26,6 @@ $ swift build
 ```shell
 $ .build/debug/dounts.
 ```
+
+## LICENSE
+[MIT](./LICENSE.txt)
