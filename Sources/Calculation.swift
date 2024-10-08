@@ -1,10 +1,3 @@
-//
-//  Calculation.swift
-//  
-//　Creating a theory of donut math
-//  Created by 村岡海人 on 2023/11/03.
-//
-
 import Foundation
 
 struct Calculation {
